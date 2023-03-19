@@ -58,7 +58,7 @@ RUN ln -s "/usr/bin/g++" "/usr/bin/musl-g++" && \
 
 RUN echo "Building zlib" && \
     cd /tmp && \
-    curl -fLO "http://zlib.net/zlib-$ZLIB_VERSION.tar.gz" && \
+    curl -sSfLO "http://zlib.net/zlib-$ZLIB_VERSION.tar.gz" && \
     tar xzf "zlib-$ZLIB_VERSION.tar.gz" && cd "zlib-$ZLIB_VERSION" && \
     ./configure --static --prefix=/usr/local/musl && \
     make && make install && \
@@ -66,7 +66,7 @@ RUN echo "Building zlib" && \
 
 # Install libelf
 RUN cd /tmp && \
-    curl -L https://github.com/arachsys/libelf/archive/refs/tags/v$LIBELF_VERSION.tar.gz | tar xz && \
+    curl -sSfL https://github.com/arachsys/libelf/archive/refs/tags/v$LIBELF_VERSION.tar.gz | tar xz && \
     cd libelf-$LIBELF_VERSION && \
     export PREFIX=/usr/local/musl C_INCLUDE_PATH=/usr/local/musl/include LIBRARY_PATH=/usr/local/musl/lib && \
     make libelf.a && make install-static && \
@@ -86,7 +86,7 @@ ENV RUSTUP_HOME=/opt/rust/rustup \
 # interact with the user or fool around with TTYs.  We also set the default
 # `--target` to musl so that our users don't need to keep overriding it
 # manually.
-RUN curl https://sh.rustup.rs -sSf | \
+RUN curl https://sh.rustup.rs -sSfL | \
     env CARGO_HOME=/opt/rust/cargo \
         sh -s -- -y --default-toolchain $TOOLCHAIN --profile minimal --no-modify-path && \
     env CARGO_HOME=/opt/rust/cargo \
