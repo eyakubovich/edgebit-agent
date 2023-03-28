@@ -7,15 +7,21 @@ on:
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
 
 jobs:
   build-binaries:
     strategy:
       matrix:
-        runs-on: [buildjet-4vcpu-ubuntu-2204, buildjet-4vcpu-ubuntu-2204-arm]
+        include:
+          - runner: buildjet-4vcpu-ubuntu-2204
+            arch: x86_64
+            goarch: amd64
+          - runner: buildjet-4vcpu-ubuntu-2204-arm
+            arch: arch64
+            goarch: arm64
 
-    runs-on: ${{matrix.runs-on}}
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - uses: actions/checkout@v3
@@ -56,3 +62,20 @@ jobs:
         with:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+
+      - name: Building release artifacts
+        shell: bash
+        run: |
+          cd dist
+          make all
+
+      - name: Creating a draft release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          tag_name: ${{ github.ref_name }}
+          files: |
+            dist/output/v${{ github.ref_name }}/edgebit-agent_${{ github.ref_name }}.${{ matrix.goarch }}.deb
+            dist/output/v${{ github.ref_name }}/edgebit-agent-${{ github.ref_name }}.${{ matrix.arch }}.rpm
+            dist/output/v${{ github.ref_name }}/edgebit-agent_${{ github.ref_name }}.${{ matrix.arch }}.tar.gz
+
