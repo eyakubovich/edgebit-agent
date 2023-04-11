@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - v*
+  pull_request:
+    branches:
+      - main
 
 permissions:
   id-token: write
@@ -15,6 +18,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up gitsign
         uses: chainguard-dev/actions/setup-gitsign@main
@@ -23,9 +28,10 @@ jobs:
         shell: bash
         run: |
           # Make sure the tag is on main branch
-          git merge-base --is-ancestor ${{ github.ref_name }} origin/main
-          git tag -s -f -m "${{ github.ref_name }}" ${{ github.ref_name }}
-          git push -f origin ${{ github.ref_name }}
+          git merge-base --is-ancestor v.0.3.0 origin/main && echo "Tag is on main"
+          #git tag -s -f -m "${{ github.ref_name }}" ${{ github.ref_name }}
+          #git push -f origin ${{ github.ref_name }}
+          exit 1
 
   release-binaries:
     needs: sign-tag
