@@ -35,6 +35,22 @@ impl TokenService for Service {
         Ok(Response::new(reply))
     }
 
+    async fn enroll_cluster_agent(
+        &self,
+        request: Request<pb::EnrollClusterAgentRequest>,
+    ) -> Result<Response<pb::EnrollClusterAgentResponse>, Status> {
+
+        println!("enroll_cluster_agent: {:?}", request);
+
+        let expiration = SystemTime::now() + Duration::from_secs(180);
+
+        let reply = pb::EnrollClusterAgentResponse{
+            session_token: "SESSION_TOKEN".to_string(),
+            session_token_expiration: Some(expiration.into()),
+        };
+        Ok(Response::new(reply))
+    }
+
     async fn get_session_token(
         &self,
         request: Request<pb::GetSessionTokenRequest>,
